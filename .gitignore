@@ -5,3 +5,5 @@ node_modules/
 coverage/
 *.tsbuildinfo
 public/fonts/*.woff2
+.agents/
+client-packet-overhaul/
