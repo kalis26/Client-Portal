@@ -151,6 +151,24 @@ export const invoiceItems = pgTable("invoice_items", {
   ...timestamps,
 }, (t) => [index("invoice_items_invoice_idx").on(t.invoiceId)]);
 
+export const projectItems = pgTable("project_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  description: text("description").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  unitAmount: numeric("unit_amount", { precision: 12, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("project_items_project_idx").on(t.projectId)]);
+
+export const projectIntakes = pgTable("project_intakes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  submittedBy: uuid("submitted_by").references(() => users.id),
+  answers: jsonb("answers").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [uniqueIndex("project_intakes_project_unique").on(t.projectId)]);
+
 export const payments = pgTable("payments", {
   id: uuid("id").primaryKey().defaultRandom(),
   invoiceId: uuid("invoice_id").notNull().references(() => invoices.id),
