@@ -4,7 +4,6 @@ node_modules/
 !.env.example
 coverage/
 *.tsbuildinfo
-public/fonts/*.woff2
 .agents/
 client-packet-overhaul/
 .vercel
