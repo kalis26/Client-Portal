@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { authSessions, users } from "@/lib/db/schema";
 
-export const SESSION_COOKIE = "atelier_session";
+export const SESSION_COOKIE = "rezo_session";
 const SESSION_DAYS = 30;
 export type CurrentUser = { id: string; email: string; name: string; role: "admin" | "client"; status: "pending_verification" | "active" | "suspended"; locale: string };
 export const tokenHash = (token: string) => createHash("sha256").update(token).digest("hex");

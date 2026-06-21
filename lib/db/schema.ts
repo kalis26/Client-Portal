@@ -32,32 +32,6 @@ export const users = pgTable("users", {
   ...timestamps,
 }, (t) => [uniqueIndex("users_email_unique").on(t.email)]);
 
-export const accounts = pgTable("accounts", {
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  type: varchar("type", { length: 255 }).notNull(),
-  provider: varchar("provider", { length: 255 }).notNull(),
-  providerAccountId: varchar("provider_account_id", { length: 255 }).notNull(),
-  refresh_token: text("refresh_token"),
-  access_token: text("access_token"),
-  expires_at: integer("expires_at"),
-  token_type: varchar("token_type", { length: 255 }),
-  scope: varchar("scope", { length: 255 }),
-  id_token: text("id_token"),
-  session_state: varchar("session_state", { length: 255 }),
-}, (t) => [primaryKey({ columns: [t.provider, t.providerAccountId], name: "accounts_pk" })]);
-
-export const sessions = pgTable("sessions", {
-  sessionToken: varchar("session_token", { length: 255 }).primaryKey(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires", { withTimezone: true }).notNull(),
-}, (t) => [index("sessions_user_idx").on(t.userId)]);
-
-export const verificationTokens = pgTable("verification_tokens", {
-  identifier: varchar("identifier", { length: 255 }).notNull(),
-  token: varchar("token", { length: 255 }).notNull(),
-  expires: timestamp("expires", { withTimezone: true }).notNull(),
-}, (t) => [primaryKey({ columns: [t.identifier, t.token], name: "verification_tokens_pk" })]);
-
 export const emailTokens = pgTable("email_tokens", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -118,6 +92,9 @@ export const projects = pgTable("projects", {
   totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).notNull(),
   status: projectStatus("status").notNull().default("draft"),
   scope: text("scope").notNull(),
+  deliverables: jsonb("deliverables").notNull().default([]),
+  startsAt: timestamp("starts_at", { withTimezone: true }),
+  dueAt: timestamp("due_at", { withTimezone: true }),
   ...timestamps,
 }, (t) => [uniqueIndex("projects_public_id_unique").on(t.publicId), index("projects_client_idx").on(t.clientId)]);
 
@@ -182,6 +159,9 @@ export const payments = pgTable("payments", {
   amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
   proofStorageKey: text("proof_storage_key"),
   confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  reviewStatus: varchar("review_status", { length: 24 }).notNull().default("pending"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedBy: uuid("reviewed_by").references(() => users.id),
   ...timestamps,
 }, (t) => [index("payments_invoice_idx").on(t.invoiceId), uniqueIndex("payments_provider_reference_unique").on(t.providerReference)]);
 

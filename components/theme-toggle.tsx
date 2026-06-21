@@ -8,14 +8,14 @@ type Theme = "light" | "dark" | "system";
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("system");
   useEffect(() => {
-    const saved = (localStorage.getItem("atelier-theme") as Theme | null) ?? "system";
+    const saved = (localStorage.getItem("rezo-theme") as Theme | null) ?? "system";
     setTheme(saved);
     const dark = saved === "dark" || (saved === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.dataset.theme = dark ? "dark" : "light";
   }, []);
   function toggle() {
     const next: Theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-    setTheme(next); localStorage.setItem("atelier-theme", next);
+    setTheme(next); localStorage.setItem("rezo-theme", next);
     document.documentElement.dataset.theme = next;
   }
   const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && matchMedia("(prefers-color-scheme: dark)").matches);

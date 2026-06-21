@@ -7,6 +7,7 @@ export async function beginPayPalInvoicePayment(input: { invoiceId: string; orig
   const invoice = await db.query.invoices.findFirst({ where: eq(invoices.id, input.invoiceId) });
   if (!invoice) throw new Error("Invoice not found.");
   if (!["issued", "partially_paid"].includes(invoice.status)) throw new Error("This invoice is not payable.");
+  if (!["EUR", "USD"].includes(invoice.currency)) throw new Error("This invoice is payable by CCP transfer, not PayPal.");
   const order = await createPayPalOrder({ invoiceId: invoice.id, publicInvoiceId: invoice.publicId, amount: invoice.amount, currency: invoice.currency, returnUrl: `${input.origin}/invoices/${invoice.id}?payment=returned`, cancelUrl: `${input.origin}/invoices/${invoice.id}?payment=cancelled` });
   await db.insert(payments).values({ invoiceId: invoice.id, method: "paypal", providerReference: order.id, amount: invoice.amount });
   const approveUrl = order.links.find((link) => link.rel === "approve")?.href;

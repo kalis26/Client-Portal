@@ -3,6 +3,10 @@ import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 import { env } from "@/lib/env";
 
 export async function storeImmutablePdf(input: { key: string; bytes: Uint8Array }) {
+  return storeEncryptedFile(input);
+}
+
+export async function storeEncryptedFile(input: { key: string; bytes: Uint8Array }) {
   if (!env.BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN is required before storing client documents.");
   const key = documentEncryptionKey();
   const iv = randomBytes(12);
@@ -14,6 +18,10 @@ export async function storeImmutablePdf(input: { key: string; bytes: Uint8Array 
 }
 
 export async function retrieveImmutablePdf(url: string) {
+  return retrieveEncryptedFile(url);
+}
+
+export async function retrieveEncryptedFile(url: string) {
   const response = await fetch(url, { cache: "no-store" }); if (!response.ok) throw new Error("Encrypted document could not be retrieved.");
   const payload = Buffer.from(await response.arrayBuffer()); const key = documentEncryptionKey();
   const iv = payload.subarray(0, 12), tag = payload.subarray(12, 28), ciphertext = payload.subarray(28);

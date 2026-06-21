@@ -1,4 +1,4 @@
-# Atelier client portal
+# Rezo client portal
 
 ## Deployment
 

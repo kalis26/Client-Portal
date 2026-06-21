@@ -1,0 +1,3 @@
+"use client";
+import { useState } from "react";
+export function InvoiceActions({ invoiceId, payable }: { invoiceId: string; payable: boolean }) { const [busy,setBusy]=useState(false); const [message,setMessage]=useState(""); if (!payable) return null; async function checkout(){setBusy(true);const r=await fetch(`/api/invoices/${invoiceId}/checkout`,{method:"POST"});const p=await r.json();if(p.approveUrl) location.assign(p.approveUrl);else {setMessage(p.error??"Checkout unavailable.");setBusy(false)}} return <span><button className="button" onClick={checkout} disabled={busy}>{busy?"Opening PayPal…":"Pay with PayPal"}</button>{message&&<small className="form-error">{message}</small>}</span> }
