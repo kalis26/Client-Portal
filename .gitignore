@@ -7,3 +7,5 @@ coverage/
 public/fonts/*.woff2
 .agents/
 client-packet-overhaul/
+.vercel
+.env*
