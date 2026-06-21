@@ -18,7 +18,7 @@
     "@node-rs/argon2": "^2.0.2",
     "@sparticuz/chromium": "^149.0.0",
     "@types/nodemailer": "^8.0.1",
-    "@vercel/blob": "^1.0.2",
+    "@vercel/blob": "^2.4.1",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.44.5",
     "lucide-react": "^0.468.0",
