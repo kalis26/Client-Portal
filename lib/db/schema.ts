@@ -79,6 +79,9 @@ export const inquiries = pgTable("inquiries", {
   company: varchar("company", { length: 255 }),
   message: text("message").notNull(),
   status: inquiryStatus("status").notNull().default("new"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedBy: uuid("reviewed_by").references(() => users.id),
+  reviewNote: text("review_note"),
   ...timestamps,
 }, (t) => [index("inquiries_status_idx").on(t.status)]);
 
@@ -86,6 +89,7 @@ export const projects = pgTable("projects", {
   id: uuid("id").primaryKey().defaultRandom(),
   publicId: varchar("public_id", { length: 20 }).notNull(),
   clientId: uuid("client_id").notNull().references(() => clients.id),
+  inquiryId: uuid("inquiry_id").references(() => inquiries.id),
   name: varchar("name", { length: 255 }).notNull(),
   locale: varchar("locale", { length: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),
@@ -178,6 +182,7 @@ export const payments = pgTable("payments", {
   proofStorageKey: text("proof_storage_key"),
   confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
   reviewStatus: varchar("review_status", { length: 24 }).notNull().default("pending"),
+  reviewNote: text("review_note"),
   reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   reviewedBy: uuid("reviewed_by").references(() => users.id),
   ...timestamps,

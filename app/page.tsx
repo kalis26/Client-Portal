@@ -1,15 +1,8 @@
-import { PortalShell } from "@/components/portal-shell";
-import { Dashboard } from "@/components/dashboard";
-import { requireUser } from "@/lib/authz";
-import { db } from "@/lib/db";
-import { clientContacts, generatedDocuments, invoices, projects } from "@/lib/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-
-export default async function Home() {
-  const user = await requireUser();
-  if(user.role==="admin") redirect("/admin");
-  const project=await db.select({id:projects.id,name:projects.name,status:projects.status}).from(projects).innerJoin(clientContacts,and(eq(clientContacts.clientId,projects.clientId),eq(clientContacts.userId,user.id))).orderBy(desc(projects.createdAt)).limit(1);
-  const p=project[0]; const documentCount=p?(await db.select({id:generatedDocuments.id}).from(generatedDocuments).where(eq(generatedDocuments.projectId,p.id))).length:0; const invoice=p?await db.select({id:invoices.id,publicId:invoices.publicId,amount:invoices.amount,currency:invoices.currency}).from(invoices).where(and(eq(invoices.projectId,p.id),eq(invoices.status,"issued"))).limit(1):[];
-  return <PortalShell><Dashboard project={p} invoice={invoice[0]} documentCount={documentCount}/></PortalShell>;
-}
+import { Dashboard } from "@/components/dashboard";
+import { PortalShell } from "@/components/portal-shell";
+import { requireUser } from "@/lib/authz";
+import { db } from "@/lib/db";
+import { clientContacts, generatedDocuments, invoices, payments, projects } from "@/lib/db/schema";
+export default async function Home({searchParams}:{searchParams:Promise<{project?:string}>}){const user=await requireUser();if(user.role==="admin")redirect("/admin");const rows=await db.select().from(projects).innerJoin(clientContacts,and(eq(clientContacts.clientId,projects.clientId),eq(clientContacts.userId,user.id))).orderBy(desc(projects.updatedAt));const selected=(await searchParams).project;const project=rows.map(r=>r.projects).find(p=>p.publicId===selected)??rows[0]?.projects;if(!project)return <PortalShell><Dashboard projects={[]} /></PortalShell>;const [docs,bills,proofs]=await Promise.all([db.select().from(generatedDocuments).where(eq(generatedDocuments.projectId,project.id)),db.select().from(invoices).where(eq(invoices.projectId,project.id)),db.select().from(payments).innerJoin(invoices,eq(payments.invoiceId,invoices.id)).where(eq(invoices.projectId,project.id)).orderBy(desc(payments.createdAt))]);return <PortalShell projectPublicId={project.publicId}><Dashboard projects={rows.map(r=>r.projects)} project={project} documents={docs} invoices={bills} proof={proofs[0]?.payments}/></PortalShell>}
